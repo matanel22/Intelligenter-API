@@ -1,37 +1,41 @@
 import cron from 'node-cron';
 import * as domainService from '../services/domainService.js';
 
-// Check if domain should be analyzed (every 24 hours)
+// Check if domain should be analyzed (every 30 days / 1 month)
 const shouldAnalyze = (lastUpdated?: Date): boolean => {
   if (!lastUpdated) return true;
   
-  const twentyFourHoursAgo = new Date();
-  twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   
-  return lastUpdated < twentyFourHoursAgo;
+  return lastUpdated < thirtyDaysAgo;
 };
 
-// Schedule domain analysis every hour
+// Schedule domain analysis every day at midnight to check for monthly updates
 export const schedulePeriodicAnalysis = (): void => {
-  cron.schedule('0 * * * *', async () => {
-    console.log('Running scheduled domain analysis...');
+  cron.schedule('0 0 * * *', async () => {
+    console.log('🔍 Running scheduled domain analysis check...');
     
     try {
       const domains = await domainService.getAllDomains();
       const readyDomains = domains.filter(domain => domain.status === 'ready');
       
+      console.log(`📊 Found ${readyDomains.length} domains to check for updates`);
+      
       for (const domain of readyDomains) {
         if (domain.id && shouldAnalyze(domain.last_updated)) {
-          console.log(`Analyzing domain: ${domain.domain}`);
+          console.log(`🔄 Analyzing domain (30+ days old): ${domain.domain}`);
           await domainService.analyzeDomain(domain.domain);
         }
       }
       
-      console.log('Scheduled analysis completed');
+      console.log('✅ Scheduled analysis completed');
     } catch (error) {
-      console.error('Error in scheduled analysis:', error);
+      console.error('❌ Error in scheduled analysis:', error);
     }
   });
+  
+  console.log('📅 Scheduler configured: Daily check at midnight for domains older than 30 days');
 };
 
 // Schedule cleanup of old analysis data

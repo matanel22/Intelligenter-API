@@ -194,10 +194,10 @@ export const analyzeDomain = async (domainName: string): Promise<Domain> => {
     Math.floor((vtStats.harmless / (vtStats.harmless + vtStats.malicious + vtStats.suspicious)) * 100)
   ));
 
-  // Determine if domain is malicious
+
   const isMalicious = vtStats.malicious > 5 || reputationScore < 50;
 
-  // Create analysis record
+ 
   const analysis: DomainAnalysis = {
     domain_id: domain.id,
     score: reputationScore,
@@ -223,7 +223,7 @@ export const analyzeDomain = async (domainName: string): Promise<Domain> => {
 
   console.log('📝 Analysis object:', JSON.stringify(analysis, null, 2));
 
-  // Store analysis results - stringify JSON fields for PostgreSQL
+  
   await db.raw(`
     INSERT INTO domain_analyses (domain_id, score, metrics, suggestions, analyzed_at)
     VALUES (?, ?, ?::jsonb, ?::jsonb, ?)
@@ -235,7 +235,7 @@ export const analyzeDomain = async (domainName: string): Promise<Domain> => {
     analysis.analyzed_at
   ]);
 
-  // Update domain with analysis data and set status to 'ready'
+
   await db.raw(`
     UPDATE domains
     SET status = ?, vt_data = ?::jsonb, whois_data = ?::jsonb,
@@ -302,3 +302,4 @@ export const getAllRequests = async (limit: number = 100): Promise<ApiRequest[]>
     .orderBy('created_at', 'desc')
     .limit(limit);
 };
+

@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import domainRoutes from './routes/domainRoutes.js';
 import { requestLogger, ipExtractor } from './utils/requestLogger.js';
+import { startScheduler } from './scheduler/scheduler.js';
 
 // Load environment variables
 dotenv.config();
@@ -36,6 +37,9 @@ const server = app.listen(PORT, () => {
     const { db } = await import('./db/knex.js');
     await db.raw('SELECT 1');
     console.log('✅ Database connection successful!');
+    
+    // Start scheduler after database connection is confirmed
+    startScheduler();
   } catch (error) {
     console.error('❌ Database connection failed:', error instanceof Error ? error.message : String(error));
   }

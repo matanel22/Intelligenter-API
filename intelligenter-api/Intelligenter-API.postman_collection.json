@@ -1,0 +1,182 @@
+{
+  "info": {
+    "name": "Intelligenter API",
+    "description": "Complete API collection for testing domain analysis endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "POST - Add Domain (Step 3)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"domain\": \"google.com\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/domains/post",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains", "post"]
+        }
+      }
+    },
+    {
+      "name": "GET - Get Domain (Step 3)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/domains/get?domain=google.com",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains", "get"],
+          "query": [
+            {
+              "key": "domain",
+              "value": "google.com"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET - All Domains",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/domains",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains"]
+        }
+      }
+    },
+    {
+      "name": "GET - Domain by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/domains/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains", "1"]
+        }
+      }
+    },
+    {
+      "name": "POST - Create Domain",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"domain\": \"example.com\",\n  \"status\": \"onAnalysis\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/domains",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains"]
+        }
+      }
+    },
+    {
+      "name": "PUT - Update Domain",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"ready\",\n  \"reputation_score\": 95\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/domains/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains", "1"]
+        }
+      }
+    },
+    {
+      "name": "DELETE - Remove Domain",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/domains/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains", "1"]
+        }
+      }
+    },
+    {
+      "name": "POST - Trigger Analysis",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/domains/1/analyze",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains", "1", "analyze"]
+        }
+      }
+    },
+    {
+      "name": "GET - Domain Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/domains/1/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "domains", "1", "status"]
+        }
+      }
+    }
+  ]
+}
