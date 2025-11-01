@@ -5,6 +5,8 @@ import domainRoutes from './routes/domainRoutes.js';
 import { requestLogger, ipExtractor } from './utils/requestLogger.js';
 import { startScheduler } from './scheduler/scheduler.js';
 
+import './services/queueService.js';
+
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 

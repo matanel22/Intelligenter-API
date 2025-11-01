@@ -5,7 +5,7 @@ import * as domainService from './domainService.js';
 
 const redisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '3000'),
+  port: parseInt(process.env.REDIS_PORT || '6379'),
 };
 
 
