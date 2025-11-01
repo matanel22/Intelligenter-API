@@ -1,7 +1,9 @@
 import knex from 'knex';
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config();
+// Load environment variables from project root
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const config = {
   client: 'pg',
@@ -10,7 +12,7 @@ const config = {
     port: parseInt(process.env.DB_PORT || '5432'),
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'intelligenter_api'
+    database: process.env.DB_NAME || 'postgres'
   },
   pool: {
     min: 2,

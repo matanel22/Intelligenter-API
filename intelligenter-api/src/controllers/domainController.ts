@@ -1,8 +1,8 @@
 import type { Request, Response } from 'express';
 import * as domainService from '../services/domainService.js';
-import { validateDomain } from '../utils/validation.js';
+import { validateDomain, validateDomainUpdate } from '../utils/validation.js';
 
-// Create new domain
+
 export const createDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const validation = validateDomain(req.body);
@@ -18,7 +18,7 @@ export const createDomain = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// Get all domains
+
 export const getAllDomains = async (req: Request, res: Response): Promise<void> => {
   try {
     const domains = await domainService.getAllDomains();
@@ -28,7 +28,7 @@ export const getAllDomains = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-// Get domain by ID
+
 export const getDomainById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -50,7 +50,7 @@ export const getDomainById = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-// Update domain
+
 export const updateDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -59,7 +59,7 @@ export const updateDomain = async (req: Request, res: Response): Promise<void> =
       return;
     }
     
-    const validation = validateDomain(req.body);
+    const validation = validateDomainUpdate(req.body);
     
     if (!validation.isValid) {
       res.status(400).json({ error: 'Invalid domain data', details: validation.errors });
@@ -73,7 +73,7 @@ export const updateDomain = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// Delete domain
+
 export const deleteDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -89,7 +89,7 @@ export const deleteDomain = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// Analyze domain
+
 export const analyzeDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -98,14 +98,14 @@ export const analyzeDomain = async (req: Request, res: Response): Promise<void> 
       return;
     }
     
-    // Get domain by ID to get the domain name
+   
     const domain = await domainService.getDomainById(parseInt(id));
     if (!domain) {
       res.status(404).json({ error: 'Domain not found' });
       return;
     }
     
-    // Analyze domain using domain name
+  
     const updatedDomain = await domainService.analyzeDomain(domain.domain);
     res.status(200).json({ success: true, data: updatedDomain });
   } catch (error) {
@@ -113,7 +113,7 @@ export const analyzeDomain = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-// Get domain status
+
 export const getDomainStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -129,7 +129,7 @@ export const getDomainStatus = async (req: Request, res: Response): Promise<void
   }
 };
 
-// Step 3 - POST /post endpoint
+
 export const postDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { domain } = req.body;
@@ -139,7 +139,7 @@ export const postDomain = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
-    // Check if domain already exists
+   
     const existingDomain = await domainService.getDomainByName(domain);
     
     if (existingDomain) {
@@ -150,12 +150,12 @@ export const postDomain = async (req: Request, res: Response): Promise<void> => 
         });
         return;
       } else {
-        // Domain exists but not in analysis - start new analysis
+       
         const updatedDomain = await domainService.updateDomain(existingDomain.id!, { 
           status: 'onAnalysis' 
         });
         
-        // Trigger analysis asynchronously
+      
         setTimeout(async () => {
           await domainService.analyzeDomain(domain);
         }, 1000);
@@ -168,13 +168,13 @@ export const postDomain = async (req: Request, res: Response): Promise<void> => 
       }
     }
 
-    // Create new domain with onAnalysis status
+   
     const newDomain = await domainService.createDomain({
       domain,
       status: 'onAnalysis'
     });
 
-    // Trigger analysis asynchronously
+ 
     setTimeout(async () => {
       await domainService.analyzeDomain(domain);
     }, 1000);
@@ -188,7 +188,7 @@ export const postDomain = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-// Step 3 - GET /get endpoint
+
 export const getDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { domain } = req.query;
@@ -198,11 +198,11 @@ export const getDomain = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Check if domain exists
+  
     const existingDomain = await domainService.getDomainByName(domain);
     
     if (existingDomain) {
-      // Domain exists - return it
+    
       res.status(200).json({ 
         success: true, 
         data: existingDomain 
@@ -210,13 +210,13 @@ export const getDomain = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Domain doesn't exist - add to analysis list
+ 
     const newDomain = await domainService.createDomain({
       domain,
       status: 'onAnalysis'
     });
 
-    // Trigger analysis asynchronously
+    
     setTimeout(async () => {
       await domainService.analyzeDomain(domain);
     }, 1000);

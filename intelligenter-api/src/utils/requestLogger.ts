@@ -44,9 +44,9 @@ export const requestLogger = (req: RequestWithTiming, res: Response, next: NextF
   next();
 };
 
-// Middleware to extract IP address properly
+
 export const ipExtractor = (req: RequestWithTiming, res: Response, next: NextFunction): void => {
-  // Get real IP address (considering proxies)
+ 
   req.clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
                  req.headers['x-real-ip'] as string ||
                  req.socket.remoteAddress ||

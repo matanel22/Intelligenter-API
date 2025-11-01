@@ -85,12 +85,9 @@ export const deleteDomain = async (id: number): Promise<void> => {
 };
 
 
-/**
- * Simulates VirusTotal API call
- * In production, this would call: https://www.virustotal.com/api/v3/domains/{domain}
- */
+
 const simulateVirusTotalQuery = async (domain: string): Promise<any> => {
-  // Simulate API delay
+
   await new Promise(resolve => setTimeout(resolve, 500));
   
   const maliciousVotes = Math.floor(Math.random() * 5);
@@ -126,12 +123,9 @@ const simulateVirusTotalQuery = async (domain: string): Promise<any> => {
   };
 };
 
-/**
- * Simulates Whois API call
- * In production, this would call a Whois service or use node-whois library
- */
+
 const simulateWhoisQuery = async (domain: string): Promise<any> => {
-  // Simulate API delay
+ 
   await new Promise(resolve => setTimeout(resolve, 300));
   
   const registrars = ['GoDaddy', 'Namecheap', 'Google Domains', 'Cloudflare', 'Network Solutions'];
@@ -164,31 +158,20 @@ const simulateWhoisQuery = async (domain: string): Promise<any> => {
   };
 };
 
-/**
- * Analyzes a domain by simulating VirusTotal and Whois queries
- * Updates the database with the analysis results
- */
+
 export const analyzeDomain = async (domainName: string): Promise<Domain> => {
-  // Get domain from database
+ 
   const domain = await getDomainByName(domainName);
   if (!domain || !domain.id) {
     throw new Error('Domain not found');
   }
 
-  // Update status to 'onAnalysis'
-  await updateDomain(domain.id, { status: 'onAnalysis' });
 
-  console.log(`🔍 Starting analysis for: ${domainName}`);
 
-  // Simulate VirusTotal query
-  console.log(`📡 Querying VirusTotal for ${domainName}...`);
   const vtData = await simulateVirusTotalQuery(domainName);
-  
-  // Simulate Whois query
-  console.log(`📡 Querying Whois for ${domainName}...`);
+
   const whoisData = await simulateWhoisQuery(domainName);
 
-  // Calculate reputation score based on VT data
   const vtStats = vtData.data.attributes.last_analysis_stats;
   const reputationScore = Math.max(0, Math.min(100, 
     Math.floor((vtStats.harmless / (vtStats.harmless + vtStats.malicious + vtStats.suspicious)) * 100)
@@ -221,43 +204,46 @@ export const analyzeDomain = async (domainName: string): Promise<Domain> => {
     analyzed_at: new Date()
   };
 
-  console.log('📝 Analysis object:', JSON.stringify(analysis, null, 2));
-
-  
-  await db.raw(`
-    INSERT INTO domain_analyses (domain_id, score, metrics, suggestions, analyzed_at)
-    VALUES (?, ?, ?::jsonb, ?::jsonb, ?)
-  `, [
-    analysis.domain_id,
-    analysis.score,
-    JSON.stringify(analysis.metrics),
-    JSON.stringify(analysis.suggestions),
-    analysis.analyzed_at
-  ]);
 
 
-  await db.raw(`
-    UPDATE domains
-    SET status = ?, vt_data = ?::jsonb, whois_data = ?::jsonb,
-        reputation_score = ?, is_malicious = ?, last_updated = ?
-    WHERE id = ?
-  `, [
-    'ready',
-    JSON.stringify(vtData),
-    JSON.stringify(whoisData),
-    reputationScore,
-    isMalicious,
-    new Date(),
-    domain.id
-  ]);
-  
-  // Fetch updated domain
-  const updatedDomain = await getDomainById(domain.id);
+  const updatedDomain = await db.transaction(async (trx) => {
+      
+    await trx('domains')
+      .where({ id: domain.id })
+      .update({ 
+        status: 'onAnalysis',
+        last_updated: new Date()
+      });
+
+ 
+  await trx('domain_analyses').insert({
+  domain_id: analysis.domain_id,
+  score: analysis.score,
+  metrics: JSON.stringify(analysis.metrics),
+  suggestions: JSON.stringify(analysis.suggestions),
+  analyzed_at: analysis.analyzed_at
+});
+
+ 
+    const [updated] = await trx('domains')
+      .where({ id: domain.id })
+      .update({
+        status: 'ready',
+        vt_data: JSON.stringify(vtData),
+        whois_data: JSON.stringify(whoisData),
+        reputation_score: reputationScore,
+        is_malicious: isMalicious,
+        last_updated: new Date()
+      })
+      .returning('*');
+
+    return updated;
+  });
+
   if (!updatedDomain) {
-    throw new Error('Failed to retrieve updated domain');
+    throw new Error('Failed to update domain during analysis');
   }
 
-  console.log(`✅ Analysis complete for ${domainName} - Score: ${reputationScore}/100`);
 
   return updatedDomain;
 };
@@ -268,7 +254,6 @@ export const getDomainStatus = async (id: number): Promise<{ status: string; las
   if (!domain) {
     throw new Error('Domain not found');
   }
-
   return {
     status: domain.status,
     last_updated: domain.last_updated
