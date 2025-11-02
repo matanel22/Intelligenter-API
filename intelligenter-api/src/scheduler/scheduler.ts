@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import * as domainService from '../services/domainService.js';
+import { queueAnalysis } from '../services/queueService.js';
 
 
 const shouldAnalyze = (lastUpdated?: Date): boolean => {
@@ -24,8 +25,8 @@ export const schedulePeriodicAnalysis = (): void => {
       
       for (const domain of readyDomains) {
         if (domain.id && shouldAnalyze(domain.last_updated)) {
-          console.log(`🔄 Analyzing domain (30+ days old): ${domain.domain}`);
-          await domainService.analyzeDomain(domain.domain);
+          console.log(`🔄 Queuing analysis for domain (30+ days old): ${domain.domain}`);
+          await queueAnalysis(domain.domain);
         }
       }
       

@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as domainService from '../services/domainService.js';
+import { queueAnalysis } from '../services/queueService.js';
 import { validateDomain, validateDomainUpdate } from '../utils/validation.js';
 
 
@@ -105,9 +106,13 @@ export const analyzeDomain = async (req: Request, res: Response): Promise<void> 
       return;
     }
     
-  
-    const updatedDomain = await domainService.analyzeDomain(domain.domain);
-    res.status(200).json({ success: true, data: updatedDomain });
+    
+    await queueAnalysis(domain.domain);
+    res.status(200).json({ 
+      success: true, 
+      message: 'Domain analysis queued',
+      data: domain 
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to analyze domain', details: error });
   }
@@ -155,10 +160,8 @@ export const postDomain = async (req: Request, res: Response): Promise<void> => 
           status: 'onAnalysis' 
         });
         
-      
-        setTimeout(async () => {
-          await domainService.analyzeDomain(domain);
-        }, 1000);
+   
+        await queueAnalysis(domain);
         
         res.status(200).json({ 
           message: 'Domain sent for analysis', 
@@ -174,10 +177,8 @@ export const postDomain = async (req: Request, res: Response): Promise<void> => 
       status: 'onAnalysis'
     });
 
- 
-    setTimeout(async () => {
-      await domainService.analyzeDomain(domain);
-    }, 1000);
+    
+    await queueAnalysis(domain);
 
     res.status(201).json({ 
       message: 'Domain added and sent for analysis', 
@@ -216,10 +217,8 @@ export const getDomain = async (req: Request, res: Response): Promise<void> => {
       status: 'onAnalysis'
     });
 
-    
-    setTimeout(async () => {
-      await domainService.analyzeDomain(domain);
-    }, 1000);
+    // Queue analysis instead of setTimeout
+    await queueAnalysis(domain);
 
     res.status(201).json({ 
       success: true, 

@@ -14,7 +14,6 @@ export interface DomainInput {
 export function validateDomain(data: any): ValidationResult {
   const errors: string[] = [];
 
- console.log(data);
  
   if (!data.domain || typeof data.domain !== 'string') {
     errors.push('Domain is required and must be a string');
