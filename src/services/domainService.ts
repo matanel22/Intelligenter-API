@@ -165,9 +165,6 @@ export const analyzeDomain = async (domainName: string): Promise<Domain> => {
   if (!domain || !domain.id) {
     throw new Error('Domain not found');
   }
-
-
-
   const vtData = await simulateVirusTotalQuery(domainName);
 
   const whoisData = await simulateWhoisQuery(domainName);
@@ -176,11 +173,7 @@ export const analyzeDomain = async (domainName: string): Promise<Domain> => {
   const reputationScore = Math.max(0, Math.min(100, 
     Math.floor((vtStats.harmless / (vtStats.harmless + vtStats.malicious + vtStats.suspicious)) * 100)
   ));
-
-
   const isMalicious = vtStats.malicious > 5 || reputationScore < 50;
-
- 
   const analysis: DomainAnalysis = {
     domain_id: domain.id,
     score: reputationScore,

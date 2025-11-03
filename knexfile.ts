@@ -1,6 +1,8 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
 
-module.exports = {
+dotenv.config();
+
+const config = {
   development: {
     client: 'pg',
     connection: {
@@ -8,11 +10,11 @@ module.exports = {
       port: parseInt(process.env.DB_PORT || '5432'),
       user: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'password',
-      database: process.env.DB_NAME || 'intelligenter_api'
+      database: process.env.DB_NAME || 'postgres'
     },
     migrations: {
       directory: './src/db/migrations',
-      extension: 'cjs'
+      extension: 'ts'
     },
     seeds: {
       directory: './src/db/seeds'
@@ -30,3 +32,5 @@ module.exports = {
     }
   }
 };
+
+export default config;

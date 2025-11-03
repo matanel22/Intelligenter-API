@@ -1,5 +1,4 @@
 
-
 import { Queue, Worker, Job } from 'bullmq';
 import * as domainService from './domainService.js';
 
@@ -27,6 +26,8 @@ const analysisWorker = new Worker(
     } catch (error) {
       console.error(`❌ Analysis failed for ${domain}:`, error);
       throw error;
+
+
     }
   },
   { 
@@ -56,21 +57,15 @@ export const queueAnalysis = async (domain: string) => {
 };
 
 analysisWorker.on('completed', (job: Job) => {
-  console.log(`✅ Job ${job.id} completed`);
+  console.log(`Job ${job.id} completed`);
 });
 
 analysisWorker.on('failed', (job: Job | undefined, error: Error) => {
-  console.error(`❌ Job ${job?.id || 'unknown'} failed:`, error.message);
+  console.error(` Job ${job?.id || 'unknown'} failed:`, error.message);
 });
 
 analysisWorker.on('error', (error: Error) => {
-
-
-
-
-
-  
- 
+  console.error('Worker error:', error);
 });
 
 process.on('SIGINT', async () => {

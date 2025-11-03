@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import domainRoutes from './routes/domainRoutes.js';
-import { requestLogger, ipExtractor } from './utils/requestLogger.js';
+
 import { startScheduler } from './scheduler/scheduler.js';
 
 
@@ -16,8 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use(ipExtractor);
-app.use(requestLogger);
+
 
 
 app.use('/api/domains', domainRoutes);
