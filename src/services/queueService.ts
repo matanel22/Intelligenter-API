@@ -5,11 +5,18 @@ import * as domainService from './domainService.js';
 const redisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379'),
+  retryDelayOnFailover: 100,
+  enableReadyCheck: false,
+  maxRetriesPerRequest: null,
 };
 
 
 export const analysisQueue = new Queue('domain-analysis', {
   connection: redisConfig,
+  defaultJobOptions: {
+    removeOnComplete: 10,
+    removeOnFail: 5,
+  },
 });
 
 
@@ -19,15 +26,12 @@ const analysisWorker = new Worker(
     const { domain } = job.data;
     
     try {
-      console.log(`🔍 Processing analysis for: ${domain}`);
       await domainService.analyzeDomain(domain);
       console.log(`✅ Analysis completed for: ${domain}`);
       return { success: true, domain };
     } catch (error) {
       console.error(`❌ Analysis failed for ${domain}:`, error);
       throw error;
-
-
     }
   },
   { 

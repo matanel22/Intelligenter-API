@@ -40,52 +40,6 @@ export interface DomainAnalysis {
   analyzed_at: Date;
 }
 
-
-export const createDomain = async (domainData: Omit<Domain, 'id' | 'created_at'>): Promise<Domain> => {
-  const [domain] = await db('domains')
-    .insert({
-      ...domainData,
-      created_at: new Date()
-    })
-    .returning('*');
-  
-  return domain;
-};
-
-
-export const getAllDomains = async (): Promise<Domain[]> => {
-  return await db('domains').select('*').orderBy('created_at', 'desc');
-};
-
-export const getDomainById = async (id: number): Promise<Domain | undefined> => {
-  return await db('domains').where({ id }).first();
-};
-
-
-export const getDomainByName = async (domainName: string): Promise<Domain | undefined> => {
-  return await db('domains').where({ domain: domainName }).first();
-};
-
-
-export const updateDomain = async (id: number, domainData: Partial<Domain>): Promise<Domain> => {
-  const [domain] = await db('domains')
-    .where({ id })
-    .update({
-      ...domainData,
-      last_updated: new Date()
-    })
-    .returning('*');
-  
-  return domain;
-};
-
-
-export const deleteDomain = async (id: number): Promise<void> => {
-  await db('domains').where({ id }).del();
-};
-
-
-
 const simulateVirusTotalQuery = async (domain: string): Promise<any> => {
 
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -157,6 +111,52 @@ const simulateWhoisQuery = async (domain: string): Promise<any> => {
     ]
   };
 };
+
+export const createDomain = async (domainData: Omit<Domain, 'id' | 'created_at'>): Promise<Domain> => {
+  const [domain] = await db('domains')
+    .insert({
+      ...domainData,
+      created_at: new Date()
+    })
+    .returning('*');
+  
+  return domain;
+};
+
+
+export const getAllDomains = async (): Promise<Domain[]> => {
+  return await db('domains').select('*').orderBy('created_at', 'desc');
+};
+
+export const getDomainById = async (id: number): Promise<Domain | undefined> => {
+  return await db('domains').where({ id }).first();
+};
+
+
+export const getDomainByName = async (domainName: string): Promise<Domain | undefined> => {
+  return await db('domains').where({ domain: domainName }).first();
+};
+
+
+export const updateDomain = async (id: number, domainData: Partial<Domain>): Promise<Domain> => {
+  const [domain] = await db('domains')
+    .where({ id })
+    .update({
+      ...domainData,
+      last_updated: new Date()
+    })
+    .returning('*');
+  
+  return domain;
+};
+
+
+export const deleteDomain = async (id: number): Promise<void> => {
+  await db('domains').where({ id }).del();
+};
+
+
+
 
 
 export const analyzeDomain = async (domainName: string): Promise<Domain> => {

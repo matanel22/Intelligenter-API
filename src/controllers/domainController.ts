@@ -1,17 +1,11 @@
 import type { Request, Response } from 'express';
 import * as domainService from '../services/domainService.js';
 import { queueAnalysis } from '../services/queueService.js';
-import { validateDomain, validateDomainUpdate } from '../utils/validation.js';
 
 
 export const createDomain = async (req: Request, res: Response): Promise<void> => {
   try {
-    const validation = validateDomain(req.body);
-    if (!validation.isValid) {
-      res.status(400).json({ error: 'Invalid domain data', details: validation.errors });
-      return;
-    }
-
+   
     const domain = await domainService.createDomain(req.body);
     res.status(201).json({ success: true, data: domain });
   } catch (error) {
@@ -33,12 +27,8 @@ export const getAllDomains = async (req: Request, res: Response): Promise<void> 
 export const getDomainById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.status(400).json({ error: 'Domain ID is required' });
-      return;
-    }
     
-    const domain = await domainService.getDomainById(parseInt(id));
+    const domain = await domainService.getDomainById(parseInt(id!));
     
     if (!domain) {
       res.status(404).json({ error: 'Domain not found' });
@@ -50,24 +40,11 @@ export const getDomainById = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ error: 'Failed to fetch domain', details: error });
   }
 };
-
-
 export const updateDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.status(400).json({ error: 'Domain ID is required' });
-      return;
-    }
-    
-    const validation = validateDomainUpdate(req.body);
-    
-    if (!validation.isValid) {
-      res.status(400).json({ error: 'Invalid domain data', details: validation.errors });
-      return;
-    }
-
-    const domain = await domainService.updateDomain(parseInt(id), req.body);
+   
+    const domain = await domainService.updateDomain(parseInt(id!), req.body);
     res.status(200).json({ success: true, data: domain });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update domain', details: error });
@@ -78,12 +55,8 @@ export const updateDomain = async (req: Request, res: Response): Promise<void> =
 export const deleteDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.status(400).json({ error: 'Domain ID is required' });
-      return;
-    }
-    
-    await domainService.deleteDomain(parseInt(id));
+   
+    await domainService.deleteDomain(parseInt(id!));
     res.status(200).json({ success: true, message: 'Domain deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete domain', details: error });
@@ -122,12 +95,8 @@ export const analyzeDomain = async (req: Request, res: Response): Promise<void> 
 export const getDomainStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.status(400).json({ error: 'Domain ID is required' });
-      return;
-    }
-    
-    const status = await domainService.getDomainStatus(parseInt(id));
+   
+    const status = await domainService.getDomainStatus(parseInt(id!));
     res.status(200).json({ success: true, data: status });
   } catch (error) {
     res.status(500).json({ error: 'Failed to get domain status', details: error });
@@ -138,11 +107,7 @@ export const getDomainStatus = async (req: Request, res: Response): Promise<void
 export const postDomain = async (req: Request, res: Response): Promise<void> => {
   try {
     const { domain } = req.body;
-    
-    if (!domain || typeof domain !== 'string') {
-      res.status(400).json({ error: 'Domain is required and must be a string' });
-      return;
-    }
+   
 
    
     const existingDomain = await domainService.getDomainByName(domain);
@@ -217,7 +182,7 @@ export const getDomain = async (req: Request, res: Response): Promise<void> => {
       status: 'onAnalysis'
     });
 
-    // Queue analysis instead of setTimeout
+  
     await queueAnalysis(domain);
 
     res.status(201).json({ 

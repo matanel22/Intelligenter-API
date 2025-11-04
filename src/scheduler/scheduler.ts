@@ -28,24 +28,12 @@ export const schedulePeriodicAnalysis = (): void => {
     }
   });
 };
-export const scheduleDataCleanup = (): void => {
-  cron.schedule('0 2 * * *', async () => {
-   
-    
-    try {
-   
-      
-    } catch (error) {
-      console.error('Error in data cleanup:', error);
-    }
-  });
-};
 
 
 export const startScheduler = (): void => {
 
   schedulePeriodicAnalysis();
-  scheduleDataCleanup();
+  
  
 };
  
